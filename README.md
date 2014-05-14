@@ -14,6 +14,8 @@ to one of three desired outcomes
 * Achieving 2048 in as few moves as possible
 * Reaching as large a number as possible
 * Achieving as high a score as possible
+
+
 I'll probably be using a GA for this. Perhaps not ideal for js but I want to
 play around with node, and there's [potential for distributing the workload with it](http://jj.github.io/js-ga-fosdem/#/home) 
 
