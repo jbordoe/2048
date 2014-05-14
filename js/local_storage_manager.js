@@ -61,3 +61,6 @@ LocalStorageManager.prototype.setGameState = function (gameState) {
 LocalStorageManager.prototype.clearGameState = function () {
   this.storage.removeItem(this.gameStateKey);
 };
+if (typeof window === 'undefined') {
+  module.exports = LocalStorageManager;
+}

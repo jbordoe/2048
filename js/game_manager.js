@@ -1,6 +1,12 @@
+if (typeof window === 'undefined') {
+  var Grid = require('./grid.js');
+  var Tile = require('./tile.js');
+}
+
 function GameManager(size, InputManager, Actuator, StorageManager) {
   this.size           = size; // Size of the grid
-  this.inputManager   = new InputManager;
+  this.inputManager   = typeof InputManager === "function" ?
+    new InputManager : InputManager;
   this.storageManager = new StorageManager;
   this.actuator       = new Actuator;
 
@@ -270,3 +276,7 @@ GameManager.prototype.tileMatchesAvailable = function () {
 GameManager.prototype.positionsEqual = function (first, second) {
   return first.x === second.x && first.y === second.y;
 };
+
+if (typeof window === 'undefined') {
+  module.exports = GameManager;
+}
