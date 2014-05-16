@@ -1,10 +1,29 @@
-function HTMLActuator() {
+function HTMLActuator(gameManager) {
+  this.gameManager = gameManager;
+
   this.tileContainer    = document.querySelector(".tile-container");
   this.scoreContainer   = document.querySelector(".score-container");
   this.bestContainer    = document.querySelector(".best-container");
   this.messageContainer = document.querySelector(".game-message");
 
   this.score = 0;
+
+  this.init();
+}
+
+HTMLActuator.prototype.init = function () {
+  var self = this;
+  try {
+    $('.nstSlider').nstSlider('teardown');
+  }
+  catch (e) {}
+  $('.nstSlider').nstSlider({
+      "left_grip_selector": ".leftGrip",
+      "value_changed_callback": function(cause, leftValue, maxValue) {
+          var range = maxValue;
+          self.gameManager.inputManager.setRate(1 - ((range - leftValue)/range) );
+      }
+  });
 }
 
 HTMLActuator.prototype.actuate = function (grid, metadata) {

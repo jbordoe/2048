@@ -2,7 +2,7 @@
 window.requestAnimationFrame(function () {
 
   var aiPlayer = new AIPlayer();
-  var aiInputManager = new AIInputManager(500,aiPlayer);
+  var aiInputManager = new AIInputManager(aiPlayer);
 
   new GameManager(4, aiInputManager, HTMLActuator, DummyStorageManager);
   aiInputManager.init();

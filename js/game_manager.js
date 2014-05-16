@@ -8,7 +8,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.inputManager   = typeof InputManager === "function" ?
     new InputManager : InputManager;
   this.storageManager = new StorageManager;
-  this.actuator       = new Actuator;
+  this.actuator       = new Actuator(this);
 
   this.startTiles     = 2;
 
@@ -41,6 +41,7 @@ GameManager.prototype.isGameTerminated = function () {
 GameManager.prototype.setup = function () {
   var previousState = this.storageManager.getGameState();
 
+  this.inputManager.reset();
   // Reload the game from a previous game if present
   if (previousState) {
     this.grid        = new Grid(previousState.grid.size,
