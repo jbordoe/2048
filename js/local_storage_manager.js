@@ -62,14 +62,6 @@ LocalStorageManager.prototype.setGameState = function (gameState) {
 LocalStorageManager.prototype.clearGameState = function () {
   this.storage.removeItem(this.gameStateKey);
 };
-
-LocalStorageManager.prototype.setNoticeClosed = function (noticeClosed) {
-  this.storage.setItem(this.noticeClosedKey, JSON.stringify(noticeClosed));
-};
-
-LocalStorageManager.prototype.getNoticeClosed = function () {
-  return JSON.parse(this.storage.getItem(this.noticeClosedKey) || "false");
-};
 if (typeof window === 'undefined') {
   module.exports = LocalStorageManager;
 }
