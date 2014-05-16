@@ -2,11 +2,14 @@
 <html lang="en" manifest="cache.appcache">
 <head>
   <meta charset="utf-8">
-  <title>2048</title>
+  <title>2048 AI</title>
 
   <link href="style/main.css" rel="stylesheet" type="text/css">
+  <link href="style/lib/jquery.nstSlider.css" rel="stylesheet" type="text/css">
   <link rel="shortcut icon" href="favicon.ico">
   <link rel="apple-touch-icon" href="meta/apple-touch-icon.png">
+  <link rel="apple-touch-startup-image" href="meta/apple-touch-startup-image-640x1096.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)"> <!-- iPhone 5+ -->
+  <link rel="apple-touch-startup-image" href="meta/apple-touch-startup-image-640x920.png"  media="(device-width: 320px) and (device-height: 480px) and (-webkit-device-pixel-ratio: 2)"> <!-- iPhone, retina -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
@@ -25,16 +28,25 @@
 <body>
   <div class="container">
     <div class="heading">
-      <h1 class="title">2048</h1>
+      <h1 class="title">2048 AI</h1>
+      <p class="game-intro">Watch as 2048 plays itself!</strong></p>
       <div class="scores-container">
         <div class="score-container">0</div>
         <div class="best-container">0</div>
+      <a class="restart-button">New Game</a>
       </div>
     </div>
 
     <div class="above-game">
-      <p class="game-intro">Join the numbers and get to the <strong>2048 tile!</strong></p>
-      <a class="restart-button">New Game</a>
+    </div>
+    <hr>
+    <div class="slider-label-left">Speed: </div>
+    <div class="nstSlider"
+          data-range_min="0"  data-range_max="1000"
+          data-cur_min="0"      data-cur_max="1000"
+          data-aria_enabled="true">
+
+        <div class="leftGrip"></div>
     </div>
 
     <div class="app-notice">
@@ -43,6 +55,7 @@
     </div>
 
     <div class="game-container">
+
       <div class="game-message">
         <p></p>
         <div class="lower">
@@ -100,15 +113,19 @@
     </div>
 
     <p class="game-explanation">
-      <strong class="important">How to play:</strong> Use your <strong>arrow keys</strong> to move the tiles. When two tiles with the same number touch, they <strong>merge into one!</strong>
+    <strong class="important">How to play:</strong>
+    <strong>You don't. </strong>Rather, the game plays itself, but you can tweak it's
+      behaviour.
     </p>
     <hr>
     <p>
-    <strong class="important">Note:</strong> The game on <a href="http://git.io/2048">this site</a> is the original version of 2048. Apps for <a href="https://itunes.apple.com/us/app/2048-by-gabriele-cirulli/id868076805" target="_blank">iOS</a> and <a href="https://play.google.com/store/apps/details?id=com.gabrielecirulli.app2048" target="_blank">Android</a> are also available. Other versions are derivatives or fakes, and should be used with caution.
+    <strong class="important">Want to play for yourself?:</strong>
+    Go <a href="http://gabrielecirulli.github.io/2048/">here</a>
     </p>
     <hr>
     <p>
-    Created by <a href="http://gabrielecirulli.com" target="_blank">Gabriele Cirulli.</a> Based on <a href="https://itunes.apple.com/us/app/1024!/id823499224" target="_blank">1024 by Veewo Studio</a> and conceptually similar to <a href="http://asherv.com/threes/" target="_blank">Threes by Asher Vollmer.</a>
+    This is a fork of 2048 by <a
+        href="https://www.linkedin.com/profile/view?id=299002393&trk=nav_responsive_tab_profile">Jesse Bordoe.</a> The original 2048 was created by <a href="http://gabrielecirulli.com" target="_blank">Gabriele Cirulli.</a>
     </p>
     <div class="sharing">
       <a href="https://twitter.com/share" class="twitter-share-button" data-text="Check out 2048, a game where you join numbers to score high! #2048game" data-via="gabrielecirulli" data-url="http://git.io/2048" data-counturl="http://gabrielecirulli.github.io/2048/">Tweet</a>
@@ -131,15 +148,19 @@
     </div>
   </div>
 
+  <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script src="js/lib/jquery.nstSlider.js"></script>
   <script src="js/bind_polyfill.js"></script>
   <script src="js/classlist_polyfill.js"></script>
   <script src="js/animframe_polyfill.js"></script>
-  <script src="js/keyboard_input_manager.js"></script>
+  <script src="js/ai_input_manager.js"></script>
+  <script src="js/ai_player.js"></script>
   <script src="js/html_actuator.js"></script>
   <script src="js/grid.js"></script>
   <script src="js/tile.js"></script>
   <script src="js/local_storage_manager.js"></script>
   <script src="js/game_manager.js"></script>
+<<<<<<< HEAD
   <script src="js/application.js"></script>
 
   <script>
@@ -151,5 +172,8 @@
     ga("create", "UA-42620757-2", "gabrielecirulli.github.io");
     ga("send", "pageview");
   </script>
+=======
+  <script src="js/ai_application.js"></script>
+>>>>>>> master
 </body>
 </html>

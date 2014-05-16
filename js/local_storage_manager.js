@@ -70,3 +70,6 @@ LocalStorageManager.prototype.setNoticeClosed = function (noticeClosed) {
 LocalStorageManager.prototype.getNoticeClosed = function () {
   return JSON.parse(this.storage.getItem(this.noticeClosedKey) || "false");
 };
+if (typeof window === 'undefined') {
+  module.exports = LocalStorageManager;
+}

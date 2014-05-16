@@ -115,3 +115,6 @@ Grid.prototype.serialize = function () {
     cells: cellState
   };
 };
+if (typeof window === 'undefined') {
+  module.exports = Grid;
+}

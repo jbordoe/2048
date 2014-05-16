@@ -25,3 +25,7 @@ Tile.prototype.serialize = function () {
     value: this.value
   };
 };
+
+if (typeof window === 'undefined') {
+  module.exports = Tile;
+}
