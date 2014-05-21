@@ -75,10 +75,13 @@ AIPlayer.prototype.evaluate = function (gridStats) {
   var bestScore = -Number.MAX_VALUE;
   var bestDir;
   for (var d in dirScores) {
-// TODO: decide on how to choose if two scores are equal
     if (dirScores[d] > bestScore) {
       bestScore = dirScores[d];
       bestDir = d;
+    }
+    // If scores are equal, choosr at random
+    else if (dirScores[d] == bestScore) {
+       bestDir = Math.random() > 0.5 ? d : bestDir;
     }
   }
   return bestDir;
