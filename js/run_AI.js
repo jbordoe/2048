@@ -6,20 +6,30 @@ var GameManager = require('./game_manager.js');
 var LocalStorageManager = require('./dummy_storage_manager.js');
 
 var aiPlayer = new AIPlayer();
-var aiInputManager = new AIInputManager(500,aiPlayer);
-
-aiInputManager.on("move", function(dir) { sys.puts('Move ' + mapMove(dir) ) } );
+var aiInputManager = new AIInputManager(aiPlayer);
 
 var GM = new GameManager(4, aiInputManager, DummyActuator, LocalStorageManager);
+aiInputManager.on("move", function(dir) {
+    if (GM.isGameTerminated()) {
+        aiInputManager.stop();
+        var score = GM.score;
+        sys.puts('Game over! Score - ' + score);
+    }
+    else {
+        sys.puts('Move ' + mapMove(dir) );
+    }
+});
 
 aiInputManager.init();
 
+
+
 function mapMove(move) {
     var map = {
-        0: 'Up',
-        1: 'Right',
-        2: 'Down',
-        3: 'Left'
+        0: '^',
+        1: '>',
+        2: 'v',
+        3: '<'
     };
     return map[move];
 }

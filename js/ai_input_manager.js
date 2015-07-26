@@ -6,7 +6,6 @@ function AIInputManager(ai, moveTimeMillis) {
   this.moveTimeMillis = moveTimeMillis || this.MIN_MOVE_TIME;
 
   this.events = {};
-
 }
 
 AIInputManager.prototype.init = function () {
@@ -20,9 +19,11 @@ AIInputManager.prototype.init = function () {
 };
 
 AIInputManager.prototype.bindButtonPress = function (selector, fn) {
-  var button = document.querySelector(selector);
-  button.addEventListener("click", fn.bind(this));
-  button.addEventListener(this.eventTouchend, fn.bind(this));
+  if (typeof document !== 'undefined') {
+    var button = document.querySelector(selector);
+    button.addEventListener("click", fn.bind(this));
+    button.addEventListener(this.eventTouchend, fn.bind(this));
+  }
 };
 
 AIInputManager.prototype.restart = function (event) { 
