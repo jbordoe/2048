@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var sys = require('sys');
 var AIPlayer = require('./ai_player.js');
 var AIInputManager = require('./ai_input_manager.js');
@@ -33,12 +35,55 @@ args.forEach(function (val, index, array) {
     }
     else if (val.match(/(-f|--fitness)=(score|maxval)/)) {
         opts.fitnessMeasure = val.split('=')[1];
-    }   
+    }
+    else if (val === '--help') {
+        help();
+        process.exit(0);
+    }
     else {
-        sys.puts('Invalid argument ' + val);
+        console.log('Invalid argument ' + val);
         process.exit(1);
     }
 });
+
+function help() {
+    var helpStr =
+"USAGE: run_GA.js [OPTIONS]\r\n" +
+'\r\n'+
+'Runs genetic algorithm to train (breed?) progressively better 2048 AI players \r\n' +
+'\r\n'+
+'Options:\r\n' +
+'    --popsize -p\r\n' +
+'        Number of candidates per generation. Default: 500.\r\n' +
+'    --max_generations -g\r\n' +
+'        Generations to run GA. Default 1000.\r\n' +
+'    --mutation_rate -m\r\n' +
+'        Likelihood of mutation in new offspring. Default: 0.05 (i.e. 5%).\r\n' +
+'    --runs -r\r\n' +
+'        How many games each candidate should play to calculate averaged fitness.\r\n' +
+'        Default: 5\r\n' +
+'    --fitness -f\r\n' +
+'        Fitness measure to use. One of:\r\n' +
+'           score  - player score upon game over (default).\r\n' +
+'           maxval - the highest value grid cell achieved upon game over.\r\n' +
+'    --help\r\n' +
+'        Display this help dialog.\r\n' +
+'\r\n'+
+'Examples:' +
+'\r\n'+
+'    Run a GA with a proplation size of 50, averaging fitness scores over 10 runs per candidate,\r\n' +
+'    using the highest grid cell value as the fitness measure:\r\n' +
+'\r\n'+
+'        run_GA.js -p=50 -r=10 -f=maxval' +
+'\r\n'+
+'\r\n'+
+'    Run a GA with a population size of 1000, mutation rate of 0.15 for 100 generations:\r\n' +
+'\r\n'+
+'        run_GA.js -m=0.15 -g=100 -p=1000' +
+'\r\n';
+
+    console.log(helpStr);
+}
 
 function getRandomSolution(callback) {
     var solution = {
