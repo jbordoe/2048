@@ -143,7 +143,10 @@ GameManager.prototype.move = function (direction) {
 
   var cell, tile;
 
-  var vector     = this.getVector(direction);
+  var vector = this.getVector(direction);
+  if (typeof vector === 'undefined') {
+      console.log('Vector is undefined for dir ' + direction);
+  }
   var traversals = this.buildTraversals(vector);
   var moved      = false;
 

@@ -115,6 +115,106 @@ Grid.prototype.serialize = function () {
     cells: cellState
   };
 };
+
+Grid.prototype.maxValue = function () {
+    var cells = this.cells;
+
+    var maxValue = 0;
+    for (var x = 0; x < cells.length; x++) {
+        for (var y = 0; y < cells.length; y++) {
+            var cell = cells[x][y];
+            if (cell === null) {
+                continue;
+            }
+            else if (cell.value > maxValue) {
+               maxValue = cell.value;
+            }
+        }
+    }
+    return maxValue;
+};
+
+Grid.prototype.pretty = function () {
+    var cells = this.cells;
+    for (var x = 0; x < cells.length; x++) {
+        console.log( cells[x].map(function(elem) { return elem.value }).join(' ') );
+    }
+};
+
+
+Grid.prototype.canMove = function (direction) {
+    var directionChecks = {
+        0: // up
+          function(x,y,cells) {
+            if (y-1 >= 0) {
+              var neighbourCell = cells[x][y-1];
+              if (neighbourCell === null) {
+                return true;
+              }
+              else if (neighbourCell.value === cells[x][y].value) {
+                return true;
+              }
+            } 
+            return false;
+          },
+        1: // right
+          function(x,y,cells) {
+            if (x+1 < cells.length) {
+              var neighbourCell = cells[x+1][y];
+              if (neighbourCell === null) {
+                return true;
+              }
+              else if (neighbourCell.value === cells[x][y].value) {
+                return true;
+              }
+            } 
+            return false;
+          },
+        2: // down
+          function(x,y,cells) {
+            if (y+1 < cells[0].length) {
+              var neighbourCell = cells[x][y+1];
+              if (neighbourCell === null) {
+                return true;
+              }
+              else if (neighbourCell.value === cells[x][y].value) {
+                return true;
+              }
+            } 
+            return false;
+          },
+        3: // left
+          function(x,y,cells) {
+            if (x-1 >= 0) {
+              var neighbourCell = cells[x-1][y];
+              if (neighbourCell === null) {
+                return true;
+              }
+              else if (neighbourCell.value === cells[x][y].value) {
+                return true;
+              }
+            } 
+            return false;
+          },
+    };
+
+    var checkFn = directionChecks[direction];
+    var cells = this.cells;
+
+    // Call callback for every cell
+    for (var x = 0; x < cells.length; x++) {
+        for (var y = 0; y < cells.length; y++) {
+            if (cells[x][y] === null) {
+                continue;
+            }
+            if (checkFn(x,y,cells)) {
+               return true;
+            }
+        }
+    }
+    return false;
+}
+
 if (typeof window === 'undefined') {
   module.exports = Grid;
 }

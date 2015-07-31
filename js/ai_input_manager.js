@@ -26,6 +26,12 @@ AIInputManager.prototype.bindButtonPress = function (selector, fn) {
   }
 };
 
+AIInputManager.prototype.run = function (stopCriteria, GM) {
+    while (!GM.isGameTerminated()) {
+        this.emitNextMove();
+    }
+};
+
 AIInputManager.prototype.restart = function (event) { 
     event.preventDefault(); 
       this.emit("restart"); 
@@ -37,7 +43,7 @@ AIInputManager.prototype.keepPlaying = function (event) {
 }; 
 
 AIInputManager.prototype.emitNextMove = function () {
-    var move = this.ai.getNextMove(this.gameManager.getGrid);
+    var move = this.ai.getNextMove(this.gameManager.getGrid());
     this.emit("move", move);
 };
 

@@ -5,14 +5,13 @@ var DummyActuator = require('./dummy_actuator.js');
 var GameManager = require('./game_manager.js');
 var LocalStorageManager = require('./dummy_storage_manager.js');
 
-
 var opts = {
     verbose: false
 };
 
 var args = process.argv.slice(2);
 args.forEach(function (val, index, array) {
-    if (val === '--verbose') {
+    if (val === '--verbose' || val === '-v') {
         opts.verbose = true;
     }
     else {
@@ -21,7 +20,7 @@ args.forEach(function (val, index, array) {
     }
 });
 
-var aiPlayer = new AIPlayer();
+var aiPlayer = new AIPlayer(AIPlayer.weights.BEST);
 var aiInputManager = new AIInputManager(aiPlayer);
 
 var GM = new GameManager(4, aiInputManager, DummyActuator, LocalStorageManager);
@@ -29,11 +28,13 @@ aiInputManager.on("move", function(dir) {
     if (GM.isGameTerminated()) {
         aiInputManager.stop();
         var score = GM.score;
-        sys.puts('Game over! Score - ' + score);
+        console.log('Game over!');
+        console.log('Score - ' + score);
+        console.log('Max Cell Value - ' + GM.grid.maxValue());
     }
     else {
         if (opts.verbose) {
-            sys.puts('Move ' + mapMove(dir) );
+            console.log('Move ' + mapMove(dir) );
         }
     }
 });
