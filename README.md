@@ -3,8 +3,7 @@ So I've forked [2048](https://github.com/gabrielecirulli/2048)
 
 My aim is to train a few AI players and see how high a score I can get
 
-I'll also enable AI players to plug into the game in a browser, so users can
-watch them go, tweak some things and see what happens.
+You can watch a **very stupid** AI playing [here](http://jbordoe.github.io/2048/)
 
 ### Overview
 Each 'player' will use an evaluation function which analyses the current grid

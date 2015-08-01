@@ -9,11 +9,11 @@
   -moz-border-radius: 10px;
   border-radius: 10px;
   position: relative;
-  width: 500px;
   height: 20px;
   float:center;
   background: #8f7a66;
-  padding-right:6px;
+  padding-right: 6px;
+  margin-left: 15%;
 }
 .nstSlider .leftGrip.gripHighlighted {
   background: #bbada0;

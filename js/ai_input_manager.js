@@ -1,12 +1,11 @@
 function AIInputManager(ai, moveTimeMillis) {
   this.ai = ai;
 
-  this.events = {};
-
   this.MAX_MOVE_TIME = 1500; //milliseconds
   this.MIN_MOVE_TIME = 1;
-  
   this.moveTimeMillis = moveTimeMillis || this.MIN_MOVE_TIME;
+
+  this.events = {};
 }
 
 AIInputManager.prototype.init = function () {
@@ -20,9 +19,17 @@ AIInputManager.prototype.init = function () {
 };
 
 AIInputManager.prototype.bindButtonPress = function (selector, fn) {
-  var button = document.querySelector(selector);
-  button.addEventListener("click", fn.bind(this));
-  button.addEventListener(this.eventTouchend, fn.bind(this));
+  if (typeof document !== 'undefined') {
+    var button = document.querySelector(selector);
+    button.addEventListener("click", fn.bind(this));
+    button.addEventListener(this.eventTouchend, fn.bind(this));
+  }
+};
+
+AIInputManager.prototype.run = function (stopCriteria, GM) {
+    while (!GM.isGameTerminated()) {
+        this.emitNextMove();
+    }
 };
 
 AIInputManager.prototype.restart = function (event) { 
@@ -36,7 +43,7 @@ AIInputManager.prototype.keepPlaying = function (event) {
 }; 
 
 AIInputManager.prototype.emitNextMove = function () {
-    var move = this.ai.getNextMove();
+    var move = this.ai.getNextMove(this.gameManager.getGrid());
     this.emit("move", move);
 };
 
@@ -81,6 +88,10 @@ AIInputManager.prototype.setRate = function (rate) {
     var range = this.MAX_MOVE_TIME - this.MIN_MOVE_TIME
     var moveTimeMillis = this.MAX_MOVE_TIME - (rate * range);  
     this.setMovesPerSecond(moveTimeMillis);
+};
+
+AIInputManager.prototype.setGameManager = function (GM) {
+    this.gameManager = GM;
 };
 
 if (typeof window === 'undefined') {

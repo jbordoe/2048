@@ -40,13 +40,15 @@
     <div class="above-game">
     </div>
     <hr>
-    <div class="slider-label-left">Speed: </div>
-    <div class="nstSlider"
-          data-range_min="0"  data-range_max="1000"
-          data-cur_min="0"      data-cur_max="1000"
-          data-aria_enabled="true">
+    <div class="slider-container">
+        <div class="slider-label-left">Speed: </div>
+        <div class="nstSlider"
+              data-range_min="0"  data-range_max="1000"
+              data-cur_min="0"      data-cur_max="1000"
+              data-aria_enabled="true">
 
         <div class="leftGrip"></div>
+    </div>
     </div>
 
     <div class="game-container">
@@ -118,6 +120,8 @@
   <script src="js/animframe_polyfill.js"></script>
   <script src="js/ai_input_manager.js"></script>
   <script src="js/ai_player.js"></script>
+  <script src="js/ai-weights.browser.js"></script>
+  <script src="js/ai_weights.js"></script>
   <script src="js/html_actuator.js"></script>
   <script src="js/grid.js"></script>
   <script src="js/tile.js"></script>

@@ -12,6 +12,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
 
   this.startTiles     = 2;
 
+  this.inputManager.setGameManager(this);
   this.inputManager.on("move", this.move.bind(this));
   this.inputManager.on("restart", this.restart.bind(this));
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
@@ -142,7 +143,10 @@ GameManager.prototype.move = function (direction) {
 
   var cell, tile;
 
-  var vector     = this.getVector(direction);
+  var vector = this.getVector(direction);
+  if (typeof vector === 'undefined') {
+      console.log('Vector is undefined for dir ' + direction);
+  }
   var traversals = this.buildTraversals(vector);
   var moved      = false;
 
@@ -240,6 +244,10 @@ GameManager.prototype.findFarthestPosition = function (cell, vector) {
     farthest: previous,
     next: cell // Used to check if a merge is required
   };
+};
+
+GameManager.prototype.getGrid = function () {
+    return this.grid;
 };
 
 GameManager.prototype.movesAvailable = function () {
