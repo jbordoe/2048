@@ -1,57 +1,14 @@
-AIPlayer.weights = {};
-AIPlayer.weights.DEFAULT = 'default';
-AIPlayer.weights.RANDOM  = 'random';
-AIPlayer.weights.BEST = 'best';
-
-AIPlayer.baseWeights = {
-    random: {
-        randomBias: {
-            up:    1,
-            down:  1,
-            left:  1,
-            right: 1,
-        },
-        bias: {
-            up:    0,
-            down:  0,
-            left:  0,
-            right: 0,
-        },
-    },
-    best: {
-        randomBias: {
-            up: 0.5627194778062403,
-            down: 0.09584220056422055,
-            left: 0.2465270005632192,
-            right: 0.05382815538905561
-        },
-        bias: {
-            up: 0.9430990228429437,
-            down: 0.02594538638368249,
-            left: 0.6197927463799715,
-            right: 0.7116631551180035
-        },
-   },
-};
+var AIWeights = require('./ai_weights.js');
 
 function AIPlayer(weights) {
-// TODO: Put weights into a class/prototype of their own
-    if (weights === AIPlayer.weights.BEST) {
-        this.weights = this.getWeights( AIPlayer.weights.BEST );
+    if (weights) {
+        this.weights = weights;
     }
     else {
-        this.weights = weights || this.getWeights( AIPlayer.weights.RANDOM );
+        console.warn('AIPlayer: No weights provided, using random weights');
+        this.weights = AIWeights.getRandom();
     }
 }
-
-
-AIPlayer.prototype.getWeights = function (key) {
-    if (AIPlayer.baseWeights[key]) {
-        return AIPlayer.baseWeights[key];
-    } else {
-        throw new Error('Unrecognised weight class: ' + key);
-    }
-};
 
 // Our AI player is really dumb for now
 AIPlayer.prototype.getNextMove = function (gameGrid) {

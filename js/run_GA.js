@@ -2,6 +2,7 @@
 
 var sys = require('sys');
 var AIPlayer = require('./ai_player.js');
+var AIWeights = require('./ai_weights.js');
 var AIInputManager = require('./ai_input_manager.js');
 var DummyActuator = require('./dummy_actuator.js');
 var GameManager = require('./game_manager.js');
@@ -14,12 +15,16 @@ var opts = {
     maxGenerations: 1000,
     runsPerCandidate: 5,
     fitnessMeasure: 'score',
+    save: false,
 };
 
 var args = process.argv.slice(2);
 args.forEach(function (val, index, array) {
     if (val === '--verbose' || val === '-v') {
         opts.verbose = true;
+    }
+    else if (val.match(/(-s|--save)/)) {
+        opts.save = true;
     }
     else if (val.match(/(-p|--popsize)=\d+/)) {
         opts.popSize = parseInt( val.split('=')[1] );
@@ -35,6 +40,9 @@ args.forEach(function (val, index, array) {
     }
     else if (val.match(/(-f|--fitness)=(score|maxval)/)) {
         opts.fitnessMeasure = val.split('=')[1];
+    }
+    else if (val.match(/(-w|--weights_key)=\w+/)) {
+        opts.weightsKey = val.split('=')[1];
     }
     else if (val === '--help') {
         help();
@@ -66,12 +74,20 @@ function help() {
 '        Fitness measure to use. One of:\r\n' +
 '           score  - player score upon game over (default).\r\n' +
 '           maxval - the highest value grid cell achieved upon game over.\r\n' +
+'    --weights_key -w\r\n' +
+'        Save best candidate weights under the given key.\r\n' +
+'\r\n'+
+'    --save\r\n' +
+'        Save the best candidate\'s weights to the weights file.\r\n' +
+'    --verbose\r\n' +
+'        Print detailed output.\r\n' +
+'\r\n'+
 '    --help\r\n' +
 '        Display this help dialog.\r\n' +
 '\r\n'+
 'Examples:' +
 '\r\n'+
-'    Run a GA with a proplation size of 50, averaging fitness scores over 10 runs per candidate,\r\n' +
+'    Run a GA with a population size of 50, averaging fitness scores over 10 runs per candidate,\r\n' +
 '    using the highest grid cell value as the fitness measure:\r\n' +
 '\r\n'+
 '        run_GA.js -p=50 -r=10 -f=maxval' +
@@ -80,6 +96,11 @@ function help() {
 '    Run a GA with a population size of 1000, mutation rate of 0.15 for 100 generations:\r\n' +
 '\r\n'+
 '        run_GA.js -m=0.15 -g=100 -p=1000' +
+'\r\n'+
+'\r\n'+
+'    Run a GA with a population size of 500, save the best candidate under the key \'test\'.\r\n' +
+'\r\n'+
+'        run_GA.js -g=100 --save -w=test' +
 '\r\n';
 
     console.log(helpStr);
@@ -87,33 +108,22 @@ function help() {
 
 function getRandomSolution(callback) {
     var solution = {
-        randomBias: {
-            up:    Math.random(),
-            down:  Math.random(),
-            left:  Math.random(),
-            right: Math.random()
-        },
-        bias: {
-            up:    Math.random(),
-            down:  Math.random(),
-            left:  Math.random(),
-            right: Math.random()
-        },
+        weights: AIWeights.getRandom(),
     };
     callback(solution);
 }
 
 function crossover(parent1, parent2, callback) {
-    var child = {}
-    for (var key in parent1) {
-        child[key] = {};
-        var weightSet = parent1[key];
+    var child = { weights: {} }
+    for (var key in parent1.weights) {
+        child.weights[key] = {};
+        var weightSet = parent1.weights[key];
         for (var dir in weightSet) {
             if (Math.random() > 0.5) {
-                child[key][dir] = parent1[key][dir];
+                child.weights[key][dir] = parent1.weights[key][dir];
             }
             else {
-                child[key][dir] = parent2[key][dir];
+                child.weights[key][dir] = parent2.weights[key][dir];
             }
         }
     }
@@ -121,10 +131,10 @@ function crossover(parent1, parent2, callback) {
 }
 
 function mutate(solution, callback) {
-    for (var key in solution) {
-        for (var dir in solution[key]) {
+    for (var key in solution.weights) {
+        for (var dir in solution.weights[key]) {
             if (Math.random() < opts.mutationRate) {
-                solution[key][dir] = Math.random();
+                solution.weights[key][dir] = Math.random();
             }
         }
     }
@@ -135,7 +145,7 @@ function fitness(solution, callback) {
     var fitness = 0;
 
     for (var i=0; i<opts.runsPerCandidate; i++) {
-        var aiPlayer = new AIPlayer(solution);
+        var aiPlayer = new AIPlayer(solution.weights);
         var aiInputManager = new AIInputManager(aiPlayer);
 
         var GM = new GameManager(4, aiInputManager, DummyActuator, LocalStorageManager);
@@ -172,19 +182,19 @@ var Task = require('./node_modules/genetic/lib').Task,
 
 t = new Task(options);
 
+//TODO: allow for more granular control of GA output
 if (opts.verbose) {
     t.on('run start', function () { console.log('run start');})
-    t.on('run finished', function (results) { console.log('run finished - ', results); })
     t.on('init start', function () { console.log('init start') })
-    t.on('init end', function (pop) { console.log('init end', pop) })
+ //   t.on('init end', function (pop) { console.log('init end', pop) })
     t.on('loop start', function () { console.log('loop start') })
     t.on('loop end', function () { console.log('loop end') })
     t.on('iteration start', function (generation) { console.log('iteration start - ',generation) })
     t.on('iteration end', function () { console.log('iteration end') })
     t.on('calcFitness start', function () { console.log('calcFitness start') })
-    t.on('calcFitness end', function (pop) { console.log('calcFitness end', pop) })
+//    t.on('calcFitness end', function (pop) { console.log('calcFitness end', pop) })
     t.on('parent selection start', function () { console.log('parent selection start') })
-    t.on('parent selection end', function (parents) { console.log('parent selection end ',parents) })
+    //t.on('parent selection end', function (parents) { console.log('parent selection end ',parents) })
     t.on('reproduction start', function () { console.log('reproduction start') })
 
     t.on('find sum', function () { console.log('find sum') })
@@ -194,16 +204,27 @@ if (opts.verbose) {
     t.on('normalize start', function () { console.log('normalize start') })
     t.on('normalize end', function (normalized) { console.log('normalize end',normalized) })
     t.on('child forming start', function () { console.log('child forming start') })
-    t.on('child forming end', function (children) { console.log('child forming end',children) })
+    //t.on('child forming end', function (children) { console.log('child forming end',children) })
     t.on('child selection start', function () { console.log('child selection start') })
-    t.on('child selection end', function (population) { console.log('child selection end',population) })
+    //t.on('child selection end', function (population) { console.log('child selection end',population) })
 
-    t.on('mutate', function () { console.log('MUTATION!') })
+//    t.on('mutate', function () { console.log('MUTATION!') })
 
-    t.on('reproduction end', function (children) { console.log('reproduction end',children) })
+    //t.on('reproduction end', function (children) { console.log('reproduction end',children) })
 }
-
-t.run(function (stats) { console.log('results', stats)});
-
 t.on('error', function (error) { console.log('ERROR - ', error) })
-t.run(function (stats) { console.log('results', stats)})
+t.on('run finished', function (results) {
+    console.log('RUN FINISHED - ', JSON.stringify(results,null,2) );
+    if (opts.save) {
+        var weightsKey = opts.weightsKey || opts.fitnessMeasure;
+        results.max.fitness = results.max.score;
+        results.mac.fitnessMeasure = opts.fitnessMeasure;
+        delete results.max.score;
+
+        AIWeights.set( weightsKey, results.max );
+        AIWeights.save();
+    }
+    process.exit(0);
+});
+
+t.run();

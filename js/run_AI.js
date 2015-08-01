@@ -1,5 +1,6 @@
 var sys = require('sys');
 var AIPlayer = require('./ai_player.js');
+var AIWeights = require('./ai_weights.js');
 var AIInputManager = require('./ai_input_manager.js');
 var DummyActuator = require('./dummy_actuator.js');
 var GameManager = require('./game_manager.js');
@@ -20,7 +21,7 @@ args.forEach(function (val, index, array) {
     }
 });
 
-var aiPlayer = new AIPlayer(AIPlayer.weights.BEST);
+var aiPlayer = new AIPlayer( AIWeights.get(AIWeights.MAXVAL) );
 var aiInputManager = new AIInputManager(aiPlayer);
 
 var GM = new GameManager(4, aiInputManager, DummyActuator, LocalStorageManager);
