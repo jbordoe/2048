@@ -21,7 +21,7 @@ args.forEach(function (val, index, array) {
     }
 });
 
-var aiPlayer = new AIPlayer( AIWeights.get(AIWeights.MAXVAL) );
+var aiPlayer = new AIPlayer( AIWeights.get(AIWeights.MAXVAL).weights );
 var aiInputManager = new AIInputManager(aiPlayer);
 
 var GM = new GameManager(4, aiInputManager, DummyActuator, LocalStorageManager);
