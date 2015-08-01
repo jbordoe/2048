@@ -218,7 +218,7 @@ t.on('run finished', function (results) {
     if (opts.save) {
         var weightsKey = opts.weightsKey || opts.fitnessMeasure;
         results.max.fitness = results.max.score;
-        results.mac.fitnessMeasure = opts.fitnessMeasure;
+        results.max.fitnessMeasure = opts.fitnessMeasure;
         delete results.max.score;
 
         AIWeights.set( weightsKey, results.max );
