@@ -3,7 +3,7 @@ CACHE MANIFEST
 # Adds the ability to play the game online.
 # The following comment needs to be updated whenever a change is made.
 # Run `rake appcache:update` to do so
-# Updated: 2014-05-07T12:44:43+02:00
+# Updated: 2015-08-01T11:54:41+01:00
 
 # Main page
 index.html
@@ -30,16 +30,24 @@ meta/icon_pp.svg
 meta/og_image.png
 
 # JavaScript
+js/ai-weights.browser.js
+js/ai_application.js
+js/ai_input_manager.js
+js/ai_player.js
+js/ai_weights.js
 js/animframe_polyfill.js
 js/application.js
 js/bind_polyfill.js
 js/classlist_polyfill.js
+js/dummy_actuator.js
+js/dummy_storage_manager.js
 js/game_manager.js
 js/grid.js
 js/html_actuator.js
 js/keyboard_input_manager.js
 js/local_storage_manager.js
 js/tile.js
+
 
 favicon.ico
 
