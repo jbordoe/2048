@@ -1,4 +1,6 @@
-var AIWeights = require('./ai_weights.js');
+if (typeof window === 'undefined') {
+  var AIWeights = require('./ai_weights.js');
+}
 
 function AIPlayer(weights) {
     if (weights) {

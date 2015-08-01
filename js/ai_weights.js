@@ -1,6 +1,11 @@
-var fs = require('fs');
 var weightsJSON = './ai-weights.json';
-AIWeights.weightData = require(weightsJSON);
+if (typeof window === 'undefined') {
+    var fs = require('fs');
+    AIWeights.weightData = require(weightsJSON);
+}
+else {
+    AIWeights.weightData = AIWeightData;
+}
 
 AIWeights.SCORE  = 'score';
 AIWeights.MAXVAL = 'maxval';
@@ -46,6 +51,15 @@ AIWeights.save = function () {
         JSON.stringify(AIWeights.weightData, null, 2)
     ); 
     console.log("Weights saved!");
+
+    var browserJSON = weightsJSON;
+    browserJSON.replace('.json','.browser.js');
+    console.log("Saving weights to browser ready-js file '" + browserJSON + "'...");
+    fs.writeFileSync(
+        browserJSON,
+        'AIWeightData = ' + JSON.stringify(AIWeights.weightData, null, 2)
+    ); 
+    console.log("Saved!");
 }
 
 if (typeof window === 'undefined') {
