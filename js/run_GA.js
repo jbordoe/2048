@@ -134,7 +134,7 @@ function mutate(solution, callback) {
     for (var key in solution.weights) {
         for (var dir in solution.weights[key]) {
             if (Math.random() < opts.mutationRate) {
-                solution.weights[key][dir] = Math.random();
+                solution.weights[key][dir] = Math.random()*2-1;
             }
         }
     }

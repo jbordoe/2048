@@ -50,9 +50,6 @@ function help() {
     console.log(helpStr);
 }
 
-
-
-
 var aiPlayer = new AIPlayer( AIWeights.get(opts.weightKey).weights );
 var aiInputManager = new AIInputManager(aiPlayer);
 

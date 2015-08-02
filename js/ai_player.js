@@ -23,8 +23,60 @@ AIPlayer.prototype.getNextMove = function (gameGrid) {
 };
 
 // Extract attributes from game grid with which to make a decision
-AIPlayer.prototype.getGridStats = function(gridCells) {
-    return {};
+AIPlayer.prototype.getGridStats = function(grid) {
+
+    var gridCells = grid.cells;
+
+    var stats = {
+        vPairs: 0,
+        hPairs: 0,
+    };
+    var cols = [0,0,0,0];
+    var rows = [0,0,0,0];
+
+    for (x = 0; x < gridCells.length; x++) {
+        var prevY = null;
+        for (y = 0; y < gridCells[0].length; y++) {
+            if (gridCells[x][y] === null) {
+                if (!stats.emptyCells) stats.emptyCells = 0;
+                stats.emptyCells++;
+            }
+            else {
+                cols[x]++;
+                rows[y]++;
+            }
+
+            if (gridCells[x][y] != null) {
+                if (prevY != null && gridCells[x][y].value === prevY) {
+                    stats.vPairs++;
+                    prevY = null;
+                }
+                else {
+                    prevY = gridCells[x][y].value;
+                }
+            }
+        }
+    }
+
+    stats.emptyCells /= (gridCells.length * gridCells[0].length);
+
+    for (y = 0; y < gridCells[0].length; y++) {
+        var prevX = null;
+        for (x= 0; x < gridCells.length; x++) {
+            if (gridCells[x][y] != null) {
+                if (prevX != null && gridCells[x][y].value === prevX) {
+                    stats.hPairs++;
+                    prevX = null;
+                }
+                else {
+                    prevX = gridCells[x][y].value;
+                }
+            }
+        }
+    }
+
+
+    return stats;
 };
 
 AIPlayer.prototype.evaluate = function (gridStats, grid) {

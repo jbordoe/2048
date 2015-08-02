@@ -27,20 +27,23 @@ AIWeights.get = function (weightKey) {
 }
 
 AIWeights.getRandom = function () {
-    var solution = {
-        randomBias: {
-            up:    Math.random(),
-            down:  Math.random(),
-            left:  Math.random(),
-            right: Math.random()
-        },
-        bias: {
-            up:    Math.random(),
-            down:  Math.random(),
-            left:  Math.random(),
-            right: Math.random()
-        },
-    };
+    var solution = {};
+    [
+    //    'randomBias',
+        'bias',
+        'emptyCells',
+        'hPairs',
+        'vPairs',
+   //     'maxCol',
+   //     'maxRow'
+    ].map(function (wKey) {
+        solution[wKey] = {
+            up:    Math.random()*2-1,
+            down:  Math.random()*2-1,
+            left:  Math.random()*2-1,
+            right: Math.random()*2-1
+        };
+    });
     return solution;
 }
 
@@ -53,7 +56,7 @@ AIWeights.save = function () {
     console.log("Weights saved!");
 
     var browserJSON = weightsJSON;
-    browserJSON.replace('.json','.browser.js');
+    browserJSON = browserJSON.replace('.json','.browser.js');
     console.log("Saving weights to browser ready-js file '" + browserJSON + "'...");
     fs.writeFileSync(
         browserJSON,
