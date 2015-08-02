@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
 var sys = require('sys');
+var ProgressBar = require('progress');
+
+var AIInputManager = require('./ai_input_manager.js');
 var AIPlayer = require('./ai_player.js');
 var AIWeights = require('./ai_weights.js');
-var AIInputManager = require('./ai_input_manager.js');
 var DummyActuator = require('./dummy_actuator.js');
 var GameManager = require('./game_manager.js');
 var LocalStorageManager = require('./dummy_storage_manager.js');
@@ -17,6 +19,8 @@ var opts = {
     fitnessMeasure: 'score',
     save: false,
 };
+
+var stash = {};
 
 var args = process.argv.slice(2);
 args.forEach(function (val, index, array) {
@@ -160,6 +164,9 @@ function fitness(solution, callback) {
         }
     }
     fitness = fitness / opts.runsPerCandidate;
+    if (stash.bar) {
+        stash.bar.tick();
+    }
     callback(fitness);
 }
 
@@ -193,7 +200,13 @@ if (opts.verbose) {
     t.on('loop end', function () { console.log('loop end') })
     t.on('iteration start', function (generation) { console.log('iteration start - ',generation) })
     t.on('iteration end', function () { console.log('iteration end') })
-    t.on('calcFitness start', function () { console.log('calcFitness start') })
+    t.on('calcFitness start', function () {
+        console.log('calcFitness start...');
+        stash.bar = new ProgressBar('[:current/:total] [:bar] [:elapseds elapsed]', {
+            total: opts.popSize,
+            width: 100,
+        });
+    });
 //    t.on('calcFitness end', function (pop) { console.log('calcFitness end', pop) })
     t.on('parent selection start', function () { console.log('parent selection start') })
     //t.on('parent selection end', function (parents) { console.log('parent selection end ',parents) })
