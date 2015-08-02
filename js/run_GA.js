@@ -286,7 +286,6 @@ t.on('run finished', function (results) {
             outputStr += [elem.x,elem.min,elem.max,elem.mean].join(' ');
             outputStr += '\r\n';
         });
-        console.log(outputStr);
 
         fs.writeFileSync(
             tmpDataFile,
