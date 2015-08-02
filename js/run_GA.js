@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 
-var sys = require('sys');
+var fs          = require('fs');
+var gnuplot     = require('gnuplot');
 var ProgressBar = require('progress');
+var tmp         = require('tmp');
 
-var AIInputManager = require('./ai_input_manager.js');
-var AIPlayer = require('./ai_player.js');
-var AIWeights = require('./ai_weights.js');
-var DummyActuator = require('./dummy_actuator.js');
-var GameManager = require('./game_manager.js');
+var AIInputManager      = require('./ai_input_manager.js');
+var AIPlayer            = require('./ai_player.js');
+var AIWeights           = require('./ai_weights.js');
+var DummyActuator       = require('./dummy_actuator.js');
+var GameManager         = require('./game_manager.js');
 var LocalStorageManager = require('./dummy_storage_manager.js');
 
 var opts = {
@@ -20,7 +22,9 @@ var opts = {
     save: false,
 };
 
-var stash = {};
+var stash = {
+    stats: [],
+};
 
 var args = process.argv.slice(2);
 args.forEach(function (val, index, array) {
@@ -47,6 +51,9 @@ args.forEach(function (val, index, array) {
     }
     else if (val.match(/(-w|--weights_key)=\w+/)) {
         opts.weightsKey = val.split('=')[1];
+    }
+    else if (val.match(/(-p|--plot)=.+/)) {
+        opts.plotPath = val.split('=')[1];
     }
     else if (val === '--help') {
         help();
@@ -80,6 +87,8 @@ function help() {
 '           maxval - the highest value grid cell achieved upon game over.\r\n' +
 '    --weights_key -w\r\n' +
 '        Save best candidate weights under the given key.\r\n' +
+'    --plot -p\r\n' +
+'        Output a graph of GA stats to given path\r\n' +
 '\r\n'+
 '    --save\r\n' +
 '        Save the best candidate\'s weights to the weights file.\r\n' +
@@ -198,7 +207,10 @@ if (opts.verbose) {
  //   t.on('init end', function (pop) { console.log('init end', pop) })
     t.on('loop start', function () { console.log('loop start') })
     t.on('loop end', function () { console.log('loop end') })
-    t.on('iteration start', function (generation) { console.log('\r\nITERATION',generation,'START') })
+    t.on('iteration start', function (generation) {
+        console.log('\r\nITERATION',generation,'START')
+        stash.currentGeneration = generation;
+    })
     t.on('iteration end', function () { console.log('iteration end') })
     t.on('calcFitness start', function () {
         console.log('calcFitness start (' + opts.popSize*opts.runsPerCandidate + ' games total).');
@@ -224,6 +236,15 @@ if (opts.verbose) {
             bestHistoricalCandidate = statistics.max;
         }
         if (bestHistoricalCandidate) console.log('    (bestOverallScore:',bestHistoricalCandidate.score+')');
+
+        if (opts.plotPath) {
+            stash.stats[stash.currentGeneration] = {
+                min:  statistics.minScore,
+                max:  statistics.maxScore,
+                mean: statistics.avg,
+                x: stash.currentGeneration-1,
+            };
+        }
     });
 
     t.on('normalize start', function () { console.log('normalize start') })
@@ -254,6 +275,44 @@ t.on('run finished', function (results) {
 
         AIWeights.set( weightsKey, bestCandidate );
         AIWeights.save();
+    }
+
+    if (opts.plotPath) {
+        var tmpDir = tmp.dirSync();
+        var tmpDataFile = tmpDir.name + '/output.dat';
+
+        var outputStr = '';
+        stash.stats.map(function (elem) {
+            outputStr += [elem.x,elem.min,elem.max,elem.mean].join(' ');
+            outputStr += '\r\n';
+        });
+        console.log(outputStr);
+
+        fs.writeFileSync(
+            tmpDataFile,
+            outputStr
+        );
+
+        console.log('Saving plot to:',opts.plotPath);
+        gnuplot()
+            .set('term png')
+            .set('output "' + opts.plotPath + '"')
+            .set('title "GA statistics"')
+            .set('xrange [0:' + opts.maxGenerations + ']')
+            .set('yrange [0:*]')
+            .set('xlabel "Generations"')
+            .set('ylabel "Fitness"')
+            .set('style data lines')
+            .set('grid')
+            .set('zeroaxis')
+            .plot(
+                '"' + tmpDataFile + '" using 1:2:3 w filledcurves lc rgb "#00BB00" fill solid 0.1 notitle' +
+                ', "" using 4 title "mean fitness" lc rgb "#0000DD" lw 2' +
+                ', "" using 2 notitle lc rgb "#EE0000" lt 2' +
+                ', "" using 3 notitle lc rgb "#00BB00" lt 2' +
+                ''
+            )
+            .end();
     }
     process.exit(0);
 });
