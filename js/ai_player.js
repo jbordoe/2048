@@ -95,7 +95,7 @@ AIPlayer.prototype.evaluate = function (gridStats, grid) {
         continue;
       }
       else if (key === 'randomBias') {
-        dirScores[dir] = dirScores[dir] + Math.random() * this.weights[key][dir];
+        dirScores[dir] = dirScores[dir] + (Math.random()*2-1) * this.weights[key][dir];
       }
       else {
         dirScores[dir] = dirScores[dir] + (gridStats[key] * this.weights[key][dir]) || 0;
