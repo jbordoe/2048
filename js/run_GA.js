@@ -198,10 +198,10 @@ if (opts.verbose) {
  //   t.on('init end', function (pop) { console.log('init end', pop) })
     t.on('loop start', function () { console.log('loop start') })
     t.on('loop end', function () { console.log('loop end') })
-    t.on('iteration start', function (generation) { console.log('iteration start - ',generation) })
+    t.on('iteration start', function (generation) { console.log('\r\nITERATION',generation,'START') })
     t.on('iteration end', function () { console.log('iteration end') })
     t.on('calcFitness start', function () {
-        console.log('calcFitness start...');
+        console.log('calcFitness start (' + opts.popSize*opts.runsPerCandidate + ' games total).');
         stash.bar = new ProgressBar('[:current/:total] [:bar] [:elapseds elapsed]', {
             total: opts.popSize,
             width: 100,
@@ -212,16 +212,18 @@ if (opts.verbose) {
     //t.on('parent selection end', function (parents) { console.log('parent selection end ',parents) })
     t.on('reproduction start', function () { console.log('reproduction start') })
 
-    t.on('find sum', function () { console.log('find sum') })
-    t.on('find sum end', function (sum) { console.log('find sum end', sum) })
+//    t.on('find sum', function () { console.log('find sum') })
+//    t.on('find sum end', function (sum) { console.log('find sum end', sum) })
     t.on('statistics', function (statistics) {
         console.log('statistics:');
         console.log('    minScore: ',statistics.minScore);
         console.log('    maxScore: ',statistics.maxScore);
+        console.log('    avgScore: ',statistics.avg);
         if (typeof bestHistoricalCandidate === 'undefined'
             || statistics.max.score > bestHistoricalCandidate.score) {
             bestHistoricalCandidate = statistics.max;
         }
+        if (bestHistoricalCandidate) console.log('    (bestOverallScore:',bestHistoricalCandidate.score+')');
     });
 
     t.on('normalize start', function () { console.log('normalize start') })
