@@ -182,6 +182,8 @@ var Task = require('./node_modules/genetic/lib').Task,
 
 t = new Task(options);
 
+var bestHistoricalCandidate;
+
 //TODO: allow for more granular control of GA output
 if (opts.verbose) {
     t.on('run start', function () { console.log('run start');})
@@ -199,7 +201,15 @@ if (opts.verbose) {
 
     t.on('find sum', function () { console.log('find sum') })
     t.on('find sum end', function (sum) { console.log('find sum end', sum) })
-    t.on('statistics', function (statistics) { console.log('statistics',statistics)})
+    t.on('statistics', function (statistics) {
+        console.log('statistics:');
+        console.log('    minScore: ',statistics.minScore);
+        console.log('    maxScore: ',statistics.maxScore);
+        if (typeof bestHistoricalCandidate === 'undefined'
+            || statistics.max.score > bestHistoricalCandidate.score) {
+            bestHistoricalCandidate = statistics.max;
+        }
+    });
 
     t.on('normalize start', function () { console.log('normalize start') })
     t.on('normalize end', function (normalized) { console.log('normalize end',normalized) })
@@ -215,13 +225,19 @@ if (opts.verbose) {
 t.on('error', function (error) { console.log('ERROR - ', error) })
 t.on('run finished', function (results) {
     console.log('RUN FINISHED - ', JSON.stringify(results,null,2) );
+
+    var bestCandidate = results.max.score > bestHistoricalCandidate.score
+        ? results.max
+        : bestHistoricalCandidate;
+    console.log('BEST OVERALL CANDIDATE: ', JSON.stringify(bestCandidate,null,2));
+
     if (opts.save) {
         var weightsKey = opts.weightsKey || opts.fitnessMeasure;
-        results.max.fitness = results.max.score;
-        results.max.fitnessMeasure = opts.fitnessMeasure;
-        delete results.max.score;
+        bestCandidate.fitness = bestCandidate.score;
+        bestCandidate.fitnessMeasure = opts.fitnessMeasure;
+        delete bestCandidate.score;
 
-        AIWeights.set( weightsKey, results.max );
+        AIWeights.set( weightsKey, bestCandidate );
         AIWeights.save();
     }
     process.exit(0);
