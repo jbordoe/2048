@@ -1,0 +1,27 @@
+{
+  "name": "2048-AI",
+  "version": "0.1.0",
+  "description": "Train and run AIs that can play 2048",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jbordoe/2048.git"
+  },
+  "keywords": [
+    "2048",
+    "GA",
+    "Genetic",
+    "Algorithm",
+    "Game",
+    "Playing"
+  ],
+  "author": "Jesse Bordoe",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jbordoe/2048/issues"
+  },
+  "homepage": "https://github.com/jbordoe/2048"
+}
