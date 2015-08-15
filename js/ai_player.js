@@ -98,7 +98,7 @@ AIPlayer.prototype.evaluate = function (gridStats, grid) {
         dirScores[dir] = dirScores[dir] + (Math.random()*2-1) * this.weights[key][dir];
       }
       else {
-        dirScores[dir] = dirScores[dir] + (gridStats[key] * this.weights[key][dir]) || 0;
+        dirScores[dir] = dirScores[dir] + (gridStats[key] || 0) * this.weights[key][dir];
       }
     }
   }
