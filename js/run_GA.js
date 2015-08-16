@@ -19,6 +19,7 @@ var opts = {
     maxGenerations: 1000,
     runsPerCandidate: 5,
     fitnessMeasure: 'score',
+    k: 0,
     save: false,
 };
 
@@ -48,6 +49,9 @@ args.forEach(function (val, index, array) {
     }
     else if (val.match(/(-f|--fitness)=(score|maxval)/)) {
         opts.fitnessMeasure = val.split('=')[1];
+    }
+    else if (val.match(/(-k)=\d+(\.\d+)?/)) {
+        opts.k = parseFloat( val.split('=')[1] );
     }
     else if (val.match(/(-w|--weights_key)=\w+/)) {
         opts.weightsKey = val.split('=')[1];
@@ -85,6 +89,13 @@ function help() {
 '        Fitness measure to use. One of:\r\n' +
 '           score  - player score upon game over (default).\r\n' +
 '           maxval - the highest value grid cell achieved upon game over.\r\n' +
+'    -k\r\n' +
+'        k is a parameter controlling the degree to which consistency impacts the fitness of a player.\r\n' +
+'        0 means consistency has no influence, values below 1 only reduce fitness for the least consistent players,\r\n' +
+'        1 corresponds to a linear scaling of fitness measures w.r.t consistency,\r\n' +
+'        values above 1 reduce fitness for an increasing proportion players, to an increaing degree\r\n' +
+'        essentially pushing fitness values to zero as k tends to infinity.\r\n' +
+'        Default: 0\r\n' +
 '    --weights_key -w\r\n' +
 '        Save best candidate weights under the given key.\r\n' +
 '    --plot -p\r\n' +
@@ -155,7 +166,7 @@ function mutate(solution, callback) {
 }
 
 function fitness(solution, callback) {
-    var fitness = 0;
+    var scores = new Array(opts.runsPerCandidate);
 
     for (var i=0; i<opts.runsPerCandidate; i++) {
         var aiPlayer = new AIPlayer(solution.weights);
@@ -166,13 +177,33 @@ function fitness(solution, callback) {
         aiInputManager.run(function() { return GM.isGameTerminated() }, GM);
 
         if (opts.fitnessMeasure === 'score') {
-          fitness += GM.score;
+            scores[i] = GM.score;
         }
         else if (opts.fitnessMeasure === 'maxval') {
-            fitness += GM.grid.maxValue();
+            scores[i] = GM.grid.maxValue();
         }
     }
-    fitness = fitness / opts.runsPerCandidate;
+    var meanScore = scores.reduce(function(a,b){ return a+b; }, 0) / opts.runsPerCandidate;
+    solution['rawFitness'] = meanScore;
+
+    var fitness;
+    if (opts.runsPerCandidate > 1) {
+        var variance = scores.reduce(function(total, thisScore) {
+            var deviation = thisScore - meanScore;
+            var deviationSq = deviation*deviation;
+            return total + deviationSq;
+        },0) / opts.runsPerCandidate;
+        var stdDev = Math.sqrt(variance);
+
+        //Coefficient of Variation
+        var cv = stdDev / meanScore;
+        
+        fitness = meanScore * ( Math.pow(1 - cv, opts.k) );
+    }
+    else {
+        fitness = meanScore;
+    }
+
     if (stash.bar) {
         stash.bar.tick();
     }
@@ -228,14 +259,14 @@ if (opts.verbose) {
 //    t.on('find sum end', function (sum) { console.log('find sum end', sum) })
     t.on('statistics', function (statistics) {
         console.log('statistics:');
-        console.log('    minScore: ',statistics.minScore);
-        console.log('    maxScore: ',statistics.maxScore);
-        console.log('    avgScore: ',statistics.avg);
+        console.log('    minFitness:  ',statistics.minScore);
+        console.log('    maxFitness:  ',statistics.maxScore);
+        console.log('    meanFitness: ',statistics.avg);
         if (typeof bestHistoricalCandidate === 'undefined'
             || statistics.max.score > bestHistoricalCandidate.score) {
             bestHistoricalCandidate = statistics.max;
         }
-        if (bestHistoricalCandidate) console.log('    (bestOverallScore:',bestHistoricalCandidate.score+')');
+        if (bestHistoricalCandidate) console.log('    (bestOverallFitness:',bestHistoricalCandidate.score+')');
 
         if (opts.plotPath) {
             stash.stats[stash.currentGeneration] = {
