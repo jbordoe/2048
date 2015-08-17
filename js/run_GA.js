@@ -19,12 +19,14 @@ var opts = {
     maxGenerations: 1000,
     runsPerCandidate: 5,
     fitnessMeasure: 'score',
+    fitnessQuotient: 1,
     k: 0,
     save: false,
 };
 
 var stash = {
     stats: [],
+    currentTotal: 0,
 };
 
 var args = process.argv.slice(2);
@@ -52,6 +54,9 @@ args.forEach(function (val, index, array) {
     }
     else if (val.match(/(-k)=\d+(\.\d+)?/)) {
         opts.k = parseFloat( val.split('=')[1] );
+    }
+    else if (val.match(/(-q|--fitness_quotient)=\d+(\.\d+)?/)) {
+        opts.fitnessQuotient = parseFloat( val.split('=')[1] );
     }
     else if (val.match(/(-w|--weights_key)=\w+/)) {
         opts.weightsKey = val.split('=')[1];
@@ -89,6 +94,13 @@ function help() {
 '        Fitness measure to use. One of:\r\n' +
 '           score  - player score upon game over (default).\r\n' +
 '           maxval - the highest value grid cell achieved upon game over.\r\n' +
+'    --fitness_quotient|-q\r\n' +
+'        Raise each fitness value to the given power.\r\n' +
+'        Controls relationship between fitness and likelihood of reproduction.\r\n' +
+'        At 0, all candidates are equally likely to be selected for reproduction\r\n' +
+'        At 1, selection likelihood is proportional to candidate fitness (relative to sum of population fitness)\r\n' +
+'        Above 1, selection likelihood is skewed towards fitter candidates to an increasing degree\r\n' +
+'        Default: 1\r\n' +
 '    -k\r\n' +
 '        k is a parameter controlling the degree to which consistency impacts the fitness of a player.\r\n' +
 '        0 means consistency has no influence, values below 1 only reduce fitness for the least consistent players,\r\n' +
@@ -149,6 +161,8 @@ function crossover(parent1, parent2, callback) {
             else {
                 child.weights[key][dir] = parent2.weights[key][dir];
             }
+            //var diff = parent1.weights[key][dir] - parent2.weights[key][dir];
+            //child.weights[key][dir] = parent2.weights[key][dir] + (diff * Math.random());
         }
     }
     callback(child);
@@ -186,6 +200,8 @@ function fitness(solution, callback) {
     var meanScore = scores.reduce(function(a,b){ return a+b; }, 0) / opts.runsPerCandidate;
     solution['rawFitness'] = meanScore;
 
+    stash.currentTotal += meanScore;
+
     var fitness;
     if (opts.runsPerCandidate > 1) {
         var variance = scores.reduce(function(total, thisScore) {
@@ -202,6 +218,9 @@ function fitness(solution, callback) {
     }
     else {
         fitness = meanScore;
+    }
+    if (opts.fitnessQuotient != 1) {
+        fitness = Math.pow(fitness, opts.fitnessQuotient) / 1000;
     }
 
     if (stash.bar) {
@@ -258,24 +277,32 @@ if (opts.verbose) {
 //    t.on('find sum', function () { console.log('find sum') })
 //    t.on('find sum end', function (sum) { console.log('find sum end', sum) })
     t.on('statistics', function (statistics) {
-        console.log('statistics:');
+        console.log('Generation statistics:');
         console.log('    minFitness:  ',statistics.minScore);
         console.log('    maxFitness:  ',statistics.maxScore);
         console.log('    meanFitness: ',statistics.avg);
+        console.log('Raw fitness statistics (ignoring q and k):');
+        console.log('    minFitness:  ',statistics.min.rawFitness);
+        console.log('    maxFitness:  ',statistics.max.rawFitness);
+        console.log('    meanFitness: ',stash.currentTotal / opts.popSize);
         if (typeof bestHistoricalCandidate === 'undefined'
-            || statistics.max.score > bestHistoricalCandidate.score) {
+            || statistics.max.rawFitness > bestHistoricalCandidate.rawFitness) {
             bestHistoricalCandidate = statistics.max;
         }
-        if (bestHistoricalCandidate) console.log('    (bestOverallFitness:',bestHistoricalCandidate.score+')');
+        if (bestHistoricalCandidate) console.log('    (bestOverallRawFitness:',bestHistoricalCandidate.rawFitness+')');
 
         if (opts.plotPath) {
             stash.stats[stash.currentGeneration] = {
                 min:  statistics.minScore,
                 max:  statistics.maxScore,
                 mean: statistics.avg,
+                rawMin: statistics.min.rawFitness,
+                rawMax: statistics.max.rawFitness,
+                rawMean: stash.currentTotal / opts.popSize,
                 x: stash.currentGeneration-1,
             };
         }
+        stash.currentTotal = 0;
     });
 
     t.on('normalize start', function () { console.log('normalize start') })
