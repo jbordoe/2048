@@ -29,20 +29,22 @@ AIWeights.get = function (weightKey) {
 AIWeights.getRandom = function () {
     var solution = {};
     [
-    //    'randomBias',
-        'bias',
+        'randomBias',
+        'upBias',
+        'downBias',
+        'leftBias',
+        'rightBias',
         'emptyCells',
         'hPairs',
         'vPairs',
+        'maxVal',
+        'filledCols',
+        'filledRows',
+        'lockedCells',
    //     'maxCol',
    //     'maxRow'
     ].map(function (wKey) {
-        solution[wKey] = {
-            up:    Math.random()*2-1,
-            down:  Math.random()*2-1,
-            left:  Math.random()*2-1,
-            right: Math.random()*2-1
-        };
+        solution[wKey] = Math.random()*2-1;
     });
     return solution;
 }

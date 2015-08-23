@@ -216,5 +216,6 @@ Grid.prototype.canMove = function (direction) {
 }
 
 if (typeof window === 'undefined') {
+  var Tile = require('./tile.js');
   module.exports = Grid;
 }

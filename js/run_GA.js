@@ -143,8 +143,20 @@ function help() {
 }
 
 function getRandomSolution(callback) {
+    var weights = AIWeights.getRandom();
+
+    var maxWeight = 0;
+    //Normalise the weights
+    for (var key in weights) {
+        if (Math.abs(weights[key]) > maxWeight) {
+            maxWeight = Math.abs(weights[key]);
+        }
+    }
+    for (var key in weights) {
+        weights[key] /= maxWeight;
+    }
     var solution = {
-        weights: AIWeights.getRandom(),
+        weights: weights,
     };
     callback(solution);
 }
@@ -154,27 +166,42 @@ function crossover(parent1, parent2, callback) {
     for (var key in parent1.weights) {
         child.weights[key] = {};
         var weightSet = parent1.weights[key];
-        for (var dir in weightSet) {
-            if (Math.random() > 0.5) {
-                child.weights[key][dir] = parent1.weights[key][dir];
-            }
-            else {
-                child.weights[key][dir] = parent2.weights[key][dir];
-            }
-            //var diff = parent1.weights[key][dir] - parent2.weights[key][dir];
-            //child.weights[key][dir] = parent2.weights[key][dir] + (diff * Math.random());
+        if (Math.random() > 0.5) {
+            child.weights[key] = parent1.weights[key];
         }
+        else {
+            child.weights[key] = parent2.weights[key];
+        }
+        //var diff = parent1.weights[key] - parent2.weights[key];
+        //child.weights[key] = parent2.weights[key] + (diff * Math.random());
+    }
+    //Normalise the weights
+    var maxWeight = 0;
+    //Normalise the weights
+    for (var key in child.weights) {
+        if (Math.abs(child.weights[key]) > maxWeight) {
+            maxWeight = Math.abs(child.weights[key]);
+        }
+    }
+    for (var key in child.weights) {
+        child.weights[key] /= maxWeight;
     }
     callback(child);
 }
 
 function mutate(solution, callback) {
+    var maxWeight = 0;
     for (var key in solution.weights) {
-        for (var dir in solution.weights[key]) {
-            if (Math.random() < opts.mutationRate) {
-                solution.weights[key][dir] = Math.random()*2-1;
-            }
+        if (Math.abs(solution.weights[key]) > maxWeight) {
+            maxWeight = Math.abs(solution.weights[key]);
         }
+        if (Math.random() < opts.mutationRate) {
+            solution.weights[key] = Math.random()*2-1;
+        }
+    }
+    //Normalise the weights
+    for (var key in solution.weights) {
+        solution.weights[key] /= maxWeight;
     }
     callback(solution);
 }
@@ -188,6 +215,7 @@ function fitness(solution, callback) {
 
         var GM = new GameManager(4, aiInputManager, DummyActuator, LocalStorageManager);
         aiInputManager.setGameManager(GM);
+        aiPlayer.setGameManager(GM);
         aiInputManager.run(function() { return GM.isGameTerminated() }, GM);
 
         if (opts.fitnessMeasure === 'score') {
@@ -220,7 +248,7 @@ function fitness(solution, callback) {
         fitness = meanScore;
     }
     if (opts.fitnessQuotient != 1) {
-        fitness = Math.pow(fitness, opts.fitnessQuotient) / 1000;
+        fitness = Math.pow(fitness/1000, opts.fitnessQuotient);
     }
 
     if (stash.bar) {
@@ -341,7 +369,7 @@ t.on('run finished', function (results) {
 
         var outputStr = '';
         stash.stats.map(function (elem) {
-            outputStr += [elem.x,elem.min,elem.max,elem.mean].join(' ');
+            outputStr += [elem.x,elem.rawMin,elem.rawMax,elem.rawMean].join(' ');
             outputStr += '\r\n';
         });
 
@@ -358,7 +386,7 @@ t.on('run finished', function (results) {
             .set('xrange [0:' + opts.maxGenerations + ']')
             .set('yrange [0:*]')
             .set('xlabel "Generations"')
-            .set('ylabel "Fitness"')
+            .set('ylabel "' + opts.fitnessMeasure + '"')
             .set('style data lines')
             .set('grid')
             .set('zeroaxis')

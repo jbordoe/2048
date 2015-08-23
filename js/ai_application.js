@@ -4,6 +4,7 @@ window.requestAnimationFrame(function () {
   var aiPlayer = new AIPlayer(AIWeights.get( AIWeights.SCORE ).weights );
   var aiInputManager = new AIInputManager(aiPlayer);
 
-  new GameManager(4, aiInputManager, HTMLActuator, LocalStorageManager);
+  var GM = new GameManager(4, aiInputManager, HTMLActuator, LocalStorageManager);
+  aiPlayer.setGameManager(GM);
   aiInputManager.init();
 });
